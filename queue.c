@@ -54,69 +54,81 @@ int add ( int *queue, int maxSize, int totalEle, int *rear )
 	srand (time(NULL));
 	number = rand();	
 	printf ( "\n  Add: %d", number );
-	
-	if ( *rear >= maxSize && totalEle < maxSize )
-		*rear = 0;
 		
 	queue[*rear] = number;
-	*rear = *rear + 1;
+	*rear = (*rear + 1) % maxSize;
 	return (totalEle+1);
 }
 
 int delete ( int *queue, int maxSize, int totalEle, int *front )
 {
-	if ( *front >= maxSize && totalEle < maxSize )
-		*front = 0;
 	printf ( "\nDelete : %d", queue[*front] );
-	*front = *front + 1;
+	*front = (*front + 1) % maxSize;
 	return (totalEle-1);
 }
 
-void showQueue ( int *queue, int maxSize, int totalEle, int rear, int front )
+void displayQueue(int *queue, int maxSize, int totalEle, int rear, int front)
 {
-	int i, skipIndex;
+    int i;
+    printf("\n Display Queue - ");
 	
-	printf ( "\nQueue - " );
-	
-	if ( front == maxSize ) front = 0;
+	for (i=0; i<maxSize; i++)
+	{
+		printf ( "\n" );
 		
-	if ( front > rear-1 )
-	{
-		//DEBUG;
-		for ( i=0; i<maxSize; i++ )
+		if ( front > rear )
 		{
-			printf ( "\n" );
-			if ( i == front )
-				printf ( "Front-->[%12d  ]", queue[i]);
-			else if ( i == rear-1 )
-				printf ( "        [%12d  ]<--Rear", queue[i]);
-			else if ( ( i >= 0 && i < rear ) || ( i > front && i < maxSize ) )
-				printf ( "        [%12d  ]", queue[i]);
-			else
-				printf ( "        [              ]");
-		}
-	}
-	else
-	{
-		//DEBUG;
-		for ( i=0; i<maxSize; i++ )
-		{
-			printf ( "\n" );
-			if ( i == front && totalEle == 1 )
-				printf ( "Front-->[%12d  ]<--Rear", queue[i]);
-			else if ( i == rear-1 && totalEle == 0 )
-				printf ( "Front-->[              ]<--Rear");
-			else if ( i == rear-1 && totalEle > 0)
-				printf ( "        [%12d  ]<--Rear", queue[i]);
+			if ( 0 <= i && i < rear )
+				printf ( "        [%12d  ]", queue[i] );
+			else if ( i == rear )
+				printf ( "        [              ]<--Rear");
 			else if ( i == front )
-				printf ( "Front-->[%12d  ]", queue[i]);
-			else if ( i > front && i < rear && totalEle > 0 )
-				printf ( "        [%12d  ]", queue[i]);
+				printf ( "Front-->[%12d  ]", queue[i] );
+			else if ( i>= front && i < maxSize )
+				printf ( "        [%12d  ]", queue[i] );
 			else
 				printf ( "        [              ]");
 		}
+		else if ( front == rear )
+		{
+			// There could be two cases
+			// 	1. Queue empty
+			//	2. Queue full
+			if ( totalEle == 0 )
+			{
+				if ( i == front )
+					printf ( "Front-->[              ]<--Rear" );
+				else
+					printf ( "        [              ]");
+			}
+			else
+			{
+				if ( i == front )
+					printf ( "Front-->[%12d  ]<--Rear", queue[i] );
+				else
+					printf ( "        [%12d  ]", queue[i] );
+			}
+		}
+		else // front < rear
+		{
+			if ( i == front )
+				printf ( "Front-->" );
+			else
+				printf ( "        " );
+			
+			
+			if ( i < front )
+				printf ( "[              ]");
+			else if ( i >= rear )
+				printf ( "[              ]");
+			else
+				printf ( "[%12d  ]", queue[i] );
+			
+			
+			if ( i == rear )
+				printf ( "<--Rear" );
+		}
 	}
-	printf ("\n");	
 }
 
 
@@ -134,7 +146,7 @@ void main ()
 	
 	assumptions ( maxSize );
 	
-	queue = (int *) malloc ( maxSize * sizeof (int) );
+	queue = (int *) calloc ( maxSize, sizeof (int) );
 	
 	while ( choice != EXIT_OP )
 	{
@@ -163,7 +175,8 @@ void main ()
 				}
 				break;
 			case SHOW_OP:
-				showQueue (queue, maxSize, totalEle, rear, front);
+				//showQueue (queue, maxSize, totalEle, rear, front);
+				displayQueue (queue, maxSize, totalEle, rear, front);
 				break;
 			case EXIT_OP:
 				break;
